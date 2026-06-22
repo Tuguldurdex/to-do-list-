@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodolistRouteImport } from './routes/todolist'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TestHelloRouteImport } from './routes/test/hello'
+import { Route as TestHelloRouteImport } from './routes/test/deadline'
 
 const TodolistRoute = TodolistRouteImport.update({
   id: '/todolist',
