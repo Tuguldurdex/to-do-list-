@@ -22,7 +22,7 @@ export default function ToggleTheme() {
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger nativeButton={false} asChild>
         <Button onClick={handleClick} variant="ghost" size="icon">
           {renderIcon()}
         </Button>

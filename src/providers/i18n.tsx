@@ -1,6 +1,6 @@
-import { resource as resourceMN } from "@/locales/mn"
 import i18n from "i18next"
 import { I18nextProvider, initReactI18next } from "react-i18next"
+import { resource as resourceMN } from "@/locales/mn"
 
 const resources = {
   mn: resourceMN,

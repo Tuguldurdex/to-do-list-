@@ -9,13 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TodolistRouteImport } from './routes/todolist'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TestHelloRouteImport } from './routes/test/deadline'
+import { Route as TodolistIndexRouteImport } from './routes/todolist/index'
+import { Route as TodolistIdRouteImport } from './routes/todolist/$id'
 
-const TodolistRoute = TodolistRouteImport.update({
-  id: '/todolist',
-  path: '/todolist',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -23,49 +30,69 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TestHelloRoute = TestHelloRouteImport.update({
-  id: '/test/hello',
-  path: '/test/hello',
+const TodolistIndexRoute = TodolistIndexRouteImport.update({
+  id: '/todolist/',
+  path: '/todolist/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TodolistIdRoute = TodolistIdRouteImport.update({
+  id: '/todolist/$id',
+  path: '/todolist/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/todolist': typeof TodolistRoute
-  '/test/hello': typeof TestHelloRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/todolist/$id': typeof TodolistIdRoute
+  '/todolist/': typeof TodolistIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/todolist': typeof TodolistRoute
-  '/test/hello': typeof TestHelloRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/todolist/$id': typeof TodolistIdRoute
+  '/todolist': typeof TodolistIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/todolist': typeof TodolistRoute
-  '/test/hello': typeof TestHelloRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/todolist/$id': typeof TodolistIdRoute
+  '/todolist/': typeof TodolistIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/todolist' | '/test/hello'
+  fullPaths: '/' | '/login' | '/register' | '/todolist/$id' | '/todolist/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/todolist' | '/test/hello'
-  id: '__root__' | '/' | '/todolist' | '/test/hello'
+  to: '/' | '/login' | '/register' | '/todolist/$id' | '/todolist'
+  id: '__root__' | '/' | '/login' | '/register' | '/todolist/$id' | '/todolist/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  TodolistRoute: typeof TodolistRoute
-  TestHelloRoute: typeof TestHelloRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
+  TodolistIdRoute: typeof TodolistIdRoute
+  TodolistIndexRoute: typeof TodolistIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/todolist': {
-      id: '/todolist'
-      path: '/todolist'
-      fullPath: '/todolist'
-      preLoaderRoute: typeof TodolistRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -75,11 +102,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/test/hello': {
-      id: '/test/hello'
-      path: '/test/hello'
-      fullPath: '/test/hello'
-      preLoaderRoute: typeof TestHelloRouteImport
+    '/todolist/': {
+      id: '/todolist/'
+      path: '/todolist'
+      fullPath: '/todolist/'
+      preLoaderRoute: typeof TodolistIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/todolist/$id': {
+      id: '/todolist/$id'
+      path: '/todolist/$id'
+      fullPath: '/todolist/$id'
+      preLoaderRoute: typeof TodolistIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -87,8 +121,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TodolistRoute: TodolistRoute,
-  TestHelloRoute: TestHelloRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
+  TodolistIdRoute: TodolistIdRoute,
+  TodolistIndexRoute: TodolistIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
