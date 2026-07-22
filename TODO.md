@@ -4,10 +4,10 @@
 - [x] Todo details page
 - [x] Create todo sheet using `react-hook-form`
 - [ ] Use `uilab-core` components, use Controller component from `react-hook-form`
-- [ ] Implement zod 
-- [ ] Use one form to edit and create
-- [ ] Type should be declared from one place
-- [ ] Fix lint errors
+- [x] Implement zod 
+- [x] Use one form to edit and create
+- [x] Type should be declared from one place
+- [x] Fix lint errors
 
 ## Things to research
 

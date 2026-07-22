@@ -1,11 +1,13 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import axios from 'axios'
+import { isAxiosError } from 'axios'
 import {
   Button, Card, CardAction, CardContent,
   CardDescription, CardFooter, CardHeader,
   CardTitle, Input, Label
 } from 'uilab-core'
+import { BackApi } from '@/data'
+import { connectSocket } from '@/socket'
 
 export const Route = createFileRoute('/login')({
   component: RouteComponent,
@@ -16,17 +18,24 @@ function RouteComponent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleLogin = async () => {
+    setError('')
+    setIsSubmitting(true)
     try {
-      const res = await axios.post(import.meta.env.VITE_API_URL + '/auth/login', {
-        email,
-        password,
-      })
+      const res = await BackApi.post('/auth/login', { email, password })
       localStorage.setItem('token', res.data.access_token)
+      connectSocket()
       navigate({ to: '/todolist' })
-    } catch {
-      setError('Email эсвэл нууц үг буруу')
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 401) {
+        setError('Email эсвэл нууц үг буруу')
+      } else {
+        setError('Сервертэй холбогдоход алдаа гарлаа. Дахин оролдоно уу.')
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -69,8 +78,8 @@ function RouteComponent() {
           </div>
         </CardContent>
         <CardFooter className="flex-col gap-2">
-          <Button className="w-full" onClick={handleLogin}>
-            Нэвтрэх
+          <Button className="w-full" onClick={handleLogin} disabled={isSubmitting}>
+            {isSubmitting ? 'Түр хүлээнэ үү...' : 'Нэвтрэх'}
           </Button>
         </CardFooter>
       </Card>

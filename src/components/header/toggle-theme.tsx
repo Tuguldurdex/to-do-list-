@@ -1,6 +1,6 @@
-import { LaptopMinimalIcon, MoonIcon, SunIcon } from "lucide-react"
+import { LaptopMinimalIcon, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "uilab-core"
+import { Tooltip, TooltipContent, TooltipTrigger } from "uilab-core"
 
 export default function ToggleTheme() {
   const { theme, setTheme } = useTheme()
@@ -8,9 +8,9 @@ export default function ToggleTheme() {
   const renderIcon = () => {
     switch (theme) {
       case "dark":
-        return <MoonIcon />
+        return <Moon />
       case "light":
-        return <SunIcon />
+        return <Sun />
       default:
         return <LaptopMinimalIcon />
     }
@@ -22,10 +22,11 @@ export default function ToggleTheme() {
 
   return (
     <Tooltip>
-      <TooltipTrigger nativeButton={false} asChild>
-        <Button onClick={handleClick} variant="ghost" size="icon">
-          {renderIcon()}
-        </Button>
+      <TooltipTrigger
+        onClick={handleClick}
+        className="focus-visible:border-ring focus-visible:ring-ring/30 inline-flex size-9 items-center justify-center rounded-md hover:bg-accent"
+      >
+        {renderIcon()}
       </TooltipTrigger>
       <TooltipContent>{"Theme"}</TooltipContent>
     </Tooltip>

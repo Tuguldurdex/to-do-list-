@@ -13,7 +13,9 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TodolistIndexRouteImport } from './routes/todolist/index'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as TodolistIdRouteImport } from './routes/todolist/$id'
+import { Route as ChatRoomIdRouteImport } from './routes/chat/$roomId'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -35,9 +37,19 @@ const TodolistIndexRoute = TodolistIndexRouteImport.update({
   path: '/todolist/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TodolistIdRoute = TodolistIdRouteImport.update({
   id: '/todolist/$id',
   path: '/todolist/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoomIdRoute = ChatRoomIdRouteImport.update({
+  id: '/chat/$roomId',
+  path: '/chat/$roomId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -45,14 +57,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/chat/$roomId': typeof ChatRoomIdRoute
   '/todolist/$id': typeof TodolistIdRoute
+  '/chat/': typeof ChatIndexRoute
   '/todolist/': typeof TodolistIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/chat/$roomId': typeof ChatRoomIdRoute
   '/todolist/$id': typeof TodolistIdRoute
+  '/chat': typeof ChatIndexRoute
   '/todolist': typeof TodolistIndexRoute
 }
 export interface FileRoutesById {
@@ -60,22 +76,48 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/chat/$roomId': typeof ChatRoomIdRoute
   '/todolist/$id': typeof TodolistIdRoute
+  '/chat/': typeof ChatIndexRoute
   '/todolist/': typeof TodolistIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/todolist/$id' | '/todolist/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/chat/$roomId'
+    | '/todolist/$id'
+    | '/chat/'
+    | '/todolist/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/todolist/$id' | '/todolist'
-  id: '__root__' | '/' | '/login' | '/register' | '/todolist/$id' | '/todolist/'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/chat/$roomId'
+    | '/todolist/$id'
+    | '/chat'
+    | '/todolist'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/register'
+    | '/chat/$roomId'
+    | '/todolist/$id'
+    | '/chat/'
+    | '/todolist/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  ChatRoomIdRoute: typeof ChatRoomIdRoute
   TodolistIdRoute: typeof TodolistIdRoute
+  ChatIndexRoute: typeof ChatIndexRoute
   TodolistIndexRoute: typeof TodolistIndexRoute
 }
 
@@ -109,11 +151,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TodolistIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/todolist/$id': {
       id: '/todolist/$id'
       path: '/todolist/$id'
       fullPath: '/todolist/$id'
       preLoaderRoute: typeof TodolistIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$roomId': {
+      id: '/chat/$roomId'
+      path: '/chat/$roomId'
+      fullPath: '/chat/$roomId'
+      preLoaderRoute: typeof ChatRoomIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -123,7 +179,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  ChatRoomIdRoute: ChatRoomIdRoute,
   TodolistIdRoute: TodolistIdRoute,
+  ChatIndexRoute: ChatIndexRoute,
   TodolistIndexRoute: TodolistIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   AlertDialog,
   AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -17,90 +18,56 @@ import {
   SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { Search } from 'lucide-react'
-import axios from "axios"
 import { CreateTodoSheet, SortableTodoCard } from './-components/types'
 import type { DragEndEvent } from '@dnd-kit/core'
 import type { Todo } from './-components/types'
+import { getTodos, useCreateTodo, useDeleteAllTodos, useDeleteTodo, useToggleTodo } from '@/data/todos'
 
 export const Route = createFileRoute('/todolist/')({
   component: RouteComponent,
 })
 
-// Token-тай axios instance үүсгэх
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-})
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
-
 function RouteComponent() {
   const navigate = Route.useNavigate()
-  const [todos, setTodos] = useState<Array<Todo>>([])
   const [search, setSearch] = useState('')
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [order, setOrder] = useState<Array<number> | null>(null)
 
-  // Backend-аас todo-нуудыг авах
-  useEffect(() => {
-    api.get('/todos')
-      .then((res) => setTodos(res.data))
-      .catch(() => navigate({ to: '/login' }))
-      .finally(() => setIsLoading(false))
-  }, [])
+  const { data: todos = [], isLoading } = useQuery(getTodos())
+  const toggleMutation = useToggleTodo()
+  const createMutation = useCreateTodo()
+  const deleteMutation = useDeleteTodo()
+  const deleteAllMutation = useDeleteAllTodos()
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
+  const orderedTodos = useMemo(() => {
+    if (!order) return todos
+    const byId = new Map(todos.map(t => [t.id, t]))
+    const sorted = order.map(id => byId.get(id)).filter((t): t is Todo => !!t)
+    const missing = todos.filter(t => !order.includes(t.id))
+    return [...sorted, ...missing]
+  }, [todos, order])
+
+  const filtered = useMemo(() =>
+    orderedTodos.filter(t =>
+      t.title.toLowerCase().includes(search.toLowerCase())
+    ), [orderedTodos, search])
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (over && active.id !== over.id) {
-      setTodos(prev => {
-        const oldIndex = prev.findIndex(t => t.id === active.id)
-        const newIndex = prev.findIndex(t => t.id === over.id)
-        return arrayMove(prev, oldIndex, newIndex)
-      })
+      const current = orderedTodos.map(t => t.id)
+      const oldIndex = current.indexOf(active.id as number)
+      const newIndex = current.indexOf(over.id as number)
+      setOrder(arrayMove(current, oldIndex, newIndex))
     }
   }
 
-  const filtered = useMemo(() =>
-    todos.filter(t =>
-      t.title.toLowerCase().includes(search.toLowerCase())
-    ), [todos, search])
-
-  const toggle = async (id: number) => {
-    const todo = todos.find(t => t.id === id)
-    if (!todo) return
-    const updated = await api.put(`/todos/${id}`, {
-      title: todo.title,
-      completed: !todo.completed,
-      description: todo.description,
-      priority: todo.priority,
-      deadline: todo.deadline,
-    })
-    setTodos(todos.map(t => t.id === id ? updated.data : t))
-  }
-
-  const handleRemove = async (id: number) => {
-    await api.delete(`/todos/${id}`)
-    setTodos(todos.filter(t => t.id !== id))
-  }
-
-  const handleAdd = async (todo: Todo) => {
-    const res = await api.post('/todos', { 
-    title: todo.title ,
-    description: todo.description,
-    priority: todo.priority,
-    deadline: todo.deadline,
-    })
-    setTodos(prev => [...prev, res.data])
-  }
-
   if (isLoading) {
-    return <p>LOADING...</p>
+    return <p>Уншиж байна...</p>
   }
 
   return (
@@ -109,7 +76,7 @@ function RouteComponent() {
       {/* Header */}
       <div className="flex justify-between items-center gap-2 mb-4">
         <h1 className="text-2xl font-bold">Todo List</h1>
-        <CreateTodoSheet onSubmit={handleAdd} />
+        <CreateTodoSheet onSubmit={(todo) => createMutation.mutate(todo)} />
       </div>
 
       {/* Search */}
@@ -146,8 +113,8 @@ function RouteComponent() {
             <SortableTodoCard
               key={todo.id}
               todo={todo}
-              onToggle={toggle}
-              onRemove={handleRemove}
+              onToggle={(id) => toggleMutation.mutate({ id, completed: !todo.completed })}
+              onRemove={(id) => deleteMutation.mutate(id)}
               onNavigate={(id: number) => navigate({ to: '/todolist/$id', params: { id: id.toString() } })}
             />
           ))}
@@ -171,7 +138,7 @@ function RouteComponent() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Болих</AlertDialogCancel>
-              <AlertDialogAction onClick={() => api.delete('/todos').then(() => setTodos([]))}>
+              <AlertDialogAction onClick={() => deleteAllMutation.mutate(todos.map(t => t.id))}>
                 Бүгдийг устгах
               </AlertDialogAction>
             </AlertDialogFooter>

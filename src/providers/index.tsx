@@ -3,6 +3,7 @@ import { TooltipProvider } from "uilab-core"
 import { TanstackProvider } from "./tanstack"
 import { ToasterProvider } from "./toaster"
 import { I18nProvider } from "./i18n"
+import { SocketProvider } from "./socket"
 
 export default function ProvidersWrapper() {
   return (
@@ -15,6 +16,7 @@ export default function ProvidersWrapper() {
       <I18nProvider>
         <TooltipProvider delayDuration={0}>
           <ToasterProvider richColors />
+          <SocketProvider />
           <TanstackProvider />
         </TooltipProvider>
       </I18nProvider>

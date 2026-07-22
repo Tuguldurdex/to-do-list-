@@ -1,22 +1,28 @@
 import axios from "axios"
-import type { AxiosResponse, InternalAxiosRequestConfig } from "axios"
+import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios"
+import { disconnectSocket } from "@/socket"
 
-const requestInterceptor = (config: InternalAxiosRequestConfig<any>) => {
+const requestInterceptor = (config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem('token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
-
-  // Customize your request config here
-  // Add Bearer token to the header etc
   return config
 }
 
-const requestInterceptorError = (error: any) => Promise.reject(error)
+const requestInterceptorError = (error: unknown) => Promise.reject(error)
 
-const responseInterceptor = (response: AxiosResponse<any, any>) => response
+const responseInterceptor = (response: AxiosResponse) => response
 
-const responseInterceptorError = (error: any) => {
+// Токен хугацаа дууссан/буруу бол (401) хэрэглэгчийг автоматаар /login руу шилжүүлнэ
+const responseInterceptorError = (error: AxiosError) => {
+  if (error.response?.status === 401) {
+    localStorage.removeItem('token')
+    disconnectSocket()
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login'
+    }
+  }
   return Promise.reject(error)
 }
 
@@ -32,4 +38,3 @@ BackApi.interceptors.response.use(
   responseInterceptor,
   responseInterceptorError
 )
-
